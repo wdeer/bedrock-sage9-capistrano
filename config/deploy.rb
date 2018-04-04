@@ -20,15 +20,15 @@ set :keep_releases, 10
 ## change to 'debug' if you need more info output
 set :log_level, :info
 
-## Maps composer command to custom PHP path / full composer path
-## Remove/Adjust if un/needed
+## Maps composer to custom PHP path / full composer path
+## Adjust or remove if un/
 SSHKit.config.command_map[:composer] = "/opt/cpanel/ea-php70/root/usr/bin/php /usr/local/bin/composer"
 
 
 
 
 ####################################################
-## You shouldn't need to edit anything below here ##
+## You shouldn't NEED to edit anything below here ##
 ####################################################
 
 ## Location to dump temporary files
@@ -56,7 +56,7 @@ namespace :deploy do
   task :compile do
     run_locally do
       within fetch(:local_theme_path) do
-        execute :npm, 'run build:production'
+        execute :yarn, 'build:production'
       end
     end
   end
@@ -78,23 +78,6 @@ namespace :deploy do
 end
 ####
 
-## The following uploads dist directory to curren release's theme directory
-namespace :deploy do
-
-  task :copyonly do
-    on roles(:web) do
-      set :theme_path, fetch(:release_path).join(fetch(:webroot),'app/themes/',fetch(:theme_dir))
-      set :remote_dist_path, -> { release_path.join(fetch(:theme_path)) }
-      puts "Your local distribution path: #{fetch(:local_dist_path)} "
-      puts "Your remote distribution path: #{fetch(:remote_dist_path)} "
-      puts "Uploading files to remote "
-      upload! fetch(:local_dist_path).to_s, fetch(:remote_dist_path), recursive: true
-    end
-  end
-
-  task assetsonly: %w(deploy:compile copyonly)
-
-end
 ## Runs the previous block before the deploy is updated
 after 'deploy:updated', 'deploy:assets'
 ####
@@ -108,12 +91,12 @@ namespace :deploy do
   task :update_option_paths do
     on roles(:app) do
 
-## COMMENT OUT the next 4 lines if composer is not needed within the theme
+      ## COMMENT OUT the next 4 lines if composer is not needed within the theme
       set :theme_path, fetch(:release_path).join(fetch(:webroot),'app/themes/',fetch(:theme_dir))
       within fetch(:theme_path) do
         execute :composer, :install
       end
-#########
+      #####
 
       within fetch(:release_path) do
         if test :wp, :core, 'is-installed'
