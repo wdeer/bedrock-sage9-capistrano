@@ -4,9 +4,14 @@ require 'capistrano/setup'
 # Includes default deployment tasks
 require 'capistrano/deploy'
 
-# Load tasks from gems
+# Includes Git SCM plugin
+require "capistrano/scm/git"
+install_plugin Capistrano::SCM::Git
+
+# Load Composer
 require 'capistrano/composer'
 
+# Load wp-cli
 require 'capistrano/wpcli'
 
 # Loads custom tasks from `lib/capistrano/tasks' if you have any defined.
